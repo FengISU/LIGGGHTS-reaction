@@ -939,7 +939,7 @@ void FixWallGran::post_force_primitive(int vflag)
     if(deltan > skinDistance_) //allow force calculation away from the wall
     {
       if(c_history) vectorZeroizeN(c_history[iPart],dnum_);
-      if(*heattransfer_flag_) //heat transfer in noncontacting scenario, added by Fenglei Qi
+      if(heattransfer_flag_[0]) //heat transfer in noncontacting scenario, added by Fenglei Qi
       {
         SurfacesCloseData scdata;
         scdata.is_wall = true;
@@ -1070,7 +1070,7 @@ inline void FixWallGran::post_force_eval_contact(SurfacesIntersectData & sidata,
   // add heat flux
   if(mesh && heattransfer_flag_[iMesh])
     addHeatFlux(mesh,iPart,sidata,1.);// modifed by Fenglei Qi, 2016.3.5
-  else if(!mesh && *heattransfer_flag_)
+  else if(!mesh && heattransfer_flag_[0])
     addHeatFlux(mesh,iPart,sidata,1.);// modifed by Fenglei Qi, 2016.3.20
 }
 
@@ -1162,7 +1162,7 @@ void FixWallGran::init_heattransfer()
     //added by Fenglei Qi, 2016/03/20
     if(primitiveWall_)
     {
-      heattransfer_flag_ =new bool; 
+      heattransfer_flag_ =new bool[1]; 
     }
     else if(is_mesh_wall())
     {
@@ -1171,10 +1171,10 @@ void FixWallGran::init_heattransfer()
     
     // decide if heat transfer is to be calculated
     
-    if (!is_mesh_wall() && Temp_wall < 0.) return;
+    if (!is_mesh_wall() && Temp_wall < 0.) { heattransfer_flag_[0]=false; return;}
     else if(!is_mesh_wall())
     {
-      *heattransfer_flag_ = true;
+      heattransfer_flag_[0] = true;
     }
     else if (is_mesh_wall())
     {

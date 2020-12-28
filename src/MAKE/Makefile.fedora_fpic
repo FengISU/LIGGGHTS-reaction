@@ -64,6 +64,8 @@ JPG_INC =
 JPG_PATH = 	
 JPG_LIB =	
 
+BOOST_INC = -I/home/Fenglei/PFM2/boost
+
 # ---------------------------------------------------------------------
 # build rules and dependencies
 # no need to edit this section
@@ -71,7 +73,7 @@ JPG_LIB =
 include	Makefile.package.settings
 include	Makefile.package
 
-EXTRA_INC = $(LMP_INC) $(PKG_INC) $(MPI_INC) $(FFT_INC) $(JPG_INC) $(PKG_SYSINC)
+EXTRA_INC = $(LMP_INC) $(PKG_INC) $(MPI_INC) $(FFT_INC) $(JPG_INC) $(PKG_SYSINC) $(BOOST_INC)
 EXTRA_PATH = $(PKG_PATH) $(MPI_PATH) $(FFT_PATH) $(JPG_PATH) $(PKG_SYSPATH)
 EXTRA_LIB = $(PKG_LIB) $(MPI_LIB) $(FFT_LIB) $(JPG_LIB) $(PKG_SYSLIB)
 

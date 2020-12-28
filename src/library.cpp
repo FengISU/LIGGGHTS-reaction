@@ -1,55 +1,23 @@
 /* ----------------------------------------------------------------------
-    This is the
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
 
-    ██╗     ██╗ ██████╗  ██████╗  ██████╗ ██╗  ██╗████████╗███████╗
-    ██║     ██║██╔════╝ ██╔════╝ ██╔════╝ ██║  ██║╚══██╔══╝██╔════╝
-    ██║     ██║██║  ███╗██║  ███╗██║  ███╗███████║   ██║   ███████╗
-    ██║     ██║██║   ██║██║   ██║██║   ██║██╔══██║   ██║   ╚════██║
-    ███████╗██║╚██████╔╝╚██████╔╝╚██████╔╝██║  ██║   ██║   ███████║
-    ╚══════╝╚═╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝®
+   Copyright (2003) Sandia Corporation.  Under the terms of Contract
+   DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
+   certain rights in this software.  This software is distributed under
+   the GNU General Public License.
 
-    DEM simulation engine, released by
-    DCS Computing Gmbh, Linz, Austria
-    http://www.dcs-computing.com, office@dcs-computing.com
-
-    LIGGGHTS® is part of CFDEM®project:
-    http://www.liggghts.com | http://www.cfdem.com
-
-    Core developer and main author:
-    Christoph Kloss, christoph.kloss@dcs-computing.com
-
-    LIGGGHTS® is open-source, distributed under the terms of the GNU Public
-    License, version 2 or later. It is distributed in the hope that it will
-    be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
-    received a copy of the GNU General Public License along with LIGGGHTS®.
-    If not, see http://www.gnu.org/licenses . See also top-level README
-    and LICENSE files.
-
-    LIGGGHTS® and CFDEM® are registered trade marks of DCS Computing GmbH,
-    the producer of the LIGGGHTS® software and the CFDEM®coupling software
-    See http://www.cfdem.com/terms-trademark-policy for details.
-
--------------------------------------------------------------------------
-    Contributing author and copyright for this file:
-    This file is from LAMMPS
-    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
-    http://lammps.sandia.gov, Sandia National Laboratories
-    Steve Plimpton, sjplimp@sandia.gov
-
-    Copyright (2003) Sandia Corporation.  Under the terms of Contract
-    DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-    certain rights in this software.  This software is distributed under
-    the GNU General Public License.
+   See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
 // C or Fortran style library interface to LAMMPS
 // customize by adding new LAMMPS-specific functions
 
 #include "lmptype.h"
-#include "mpi.h"
-#include "string.h"
-#include "stdlib.h"
+#include <mpi.h>
+#include <string.h>
+#include <stdlib.h>
 #include "library.h"
 #include "lammps.h"
 #include "input.h"
@@ -116,7 +84,7 @@ void lammps_close(void *ptr)
    process an input script in filename str
 ------------------------------------------------------------------------- */
 
-void lammps_file(void *ptr, char *str)
+void lammps_file(void *ptr, const char *str)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
   lmp->input->file(str);
@@ -126,7 +94,7 @@ void lammps_file(void *ptr, char *str)
    process a single input command in str
 ------------------------------------------------------------------------- */
 
-char *lammps_command(void *ptr, char *str)
+char *lammps_command(void *ptr, const char *str)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
   return lmp->input->one(str);
@@ -156,7 +124,7 @@ void lammps_free(void *ptr)
    customize by adding names
 ------------------------------------------------------------------------- */
 
-void *lammps_extract_global(void *ptr, char *name)
+void *lammps_extract_global(void *ptr, const char *name)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
 
@@ -188,7 +156,7 @@ void *lammps_extract_global(void *ptr, char *name)
   if (strcmp(name,"natoms") == 0) return (void *) &lmp->atom->natoms;
   if (strcmp(name,"nlocal") == 0) return (void *) &lmp->atom->nlocal;
   if (strcmp(name,"nghost") == 0) return (void *) &lmp->atom->nghost;
-  if (strcmp(name,"ago") == 0) return (void *) &lmp->neighbor->ago; //INT,  time steps since last neighbor->decide,
+  if (strcmp(name,"ago") == 0) return (void *) &lmp->neighbor->ago; //INT,  time steps since last neighbor->decide
   return NULL;
 }
 
@@ -201,7 +169,7 @@ void *lammps_extract_global(void *ptr, char *name)
    customize by adding names to Atom::extract()
 ------------------------------------------------------------------------- */
 
-void *lammps_extract_atom(void *ptr, char *name)
+void *lammps_extract_atom(void *ptr, const char *name)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
   return lmp->atom->extract(name);
@@ -228,7 +196,7 @@ void *lammps_extract_atom(void *ptr, char *name)
      so caller must insure that it is OK
 ------------------------------------------------------------------------- */
 
-void *lammps_extract_compute(void *ptr, char *id, int style, int type)
+void *lammps_extract_compute(void *ptr, const char *id, int style, int type)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
 
@@ -312,7 +280,7 @@ void *lammps_extract_compute(void *ptr, char *id, int style, int type)
      the fix is valid, so caller must insure that it is OK
 ------------------------------------------------------------------------- */
 
-void *lammps_extract_fix(void *ptr, char *id, int style, int type,
+void *lammps_extract_fix(void *ptr, const char *id, int style, int type,
                          int i, int j)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
@@ -382,11 +350,14 @@ void *lammps_extract_fix(void *ptr, char *id, int style, int type,
      so caller must insure that it is OK
 ------------------------------------------------------------------------- */
 
-void *lammps_extract_variable(void *ptr, char *name, char *group)
+void *lammps_extract_variable(void *ptr, const char *name, char *group)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
-
-  int ivar = lmp->input->variable->find(name);
+  int size = strlen(name);
+  char* vn = new char[size+1];
+  strcpy(vn,name); // Fengei Qi, making compatible with LIGGGHTs321version
+  int ivar = lmp->input->variable->find(vn);
+  delete [] vn;
   if (ivar < 0) return NULL;
 
   if (lmp->input->variable->equalstyle(ivar)) {
@@ -430,7 +401,7 @@ int lammps_get_natoms(void *ptr)
    data must be pre-allocated by caller to correct length
 ------------------------------------------------------------------------- */
 
-void lammps_gather_atoms(void *ptr, char *name,
+void lammps_gather_atoms(void *ptr, const char *name,
                          int type, int count, void *data)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
@@ -449,6 +420,10 @@ void lammps_gather_atoms(void *ptr, char *name,
 
   int i,j,offset;
   void *vptr = lmp->atom->extract(name);
+  if (vptr == NULL) {
+    lmp->error->warning(FLERR,"lammps_gather_atoms: unknown property name");
+    return;
+  }
 
   // copy = Natom length vector of per-atom values
   // use atom ID to insert each atom's values into copy
@@ -467,15 +442,16 @@ void lammps_gather_atoms(void *ptr, char *name,
     int *tag = lmp->atom->tag;
     int nlocal = lmp->atom->nlocal;
 
-    if (count == 1)
+    if (count == 1) {
       for (i = 0; i < nlocal; i++)
         copy[tag[i]-1] = vector[i];
-    else
+    } else {
       for (i = 0; i < nlocal; i++) {
         offset = count*(tag[i]-1);
         for (j = 0; j < count; j++)
-          copy[offset++] = array[i][0];
+          copy[offset++] = array[i][j];
       }
+    }
 
     MPI_Allreduce(copy,data,count*natoms,MPI_INT,MPI_SUM,lmp->world);
     lmp->memory->destroy(copy);
@@ -518,7 +494,7 @@ void lammps_gather_atoms(void *ptr, char *name,
      e.g. x[0][0],x[0][1],x[0][2],x[1][0],x[1][1],x[1][2],x[2][0],...
 ------------------------------------------------------------------------- */
 
-void lammps_scatter_atoms(void *ptr, char *name,
+void lammps_scatter_atoms(void *ptr, const char *name,
                           int type, int count, void *data)
 {
   LAMMPS *lmp = (LAMMPS *) ptr;
@@ -538,6 +514,10 @@ void lammps_scatter_atoms(void *ptr, char *name,
 
   int i,j,m,offset;
   void *vptr = lmp->atom->extract(name);
+  if (vptr == NULL) {
+    lmp->error->warning(FLERR,"lammps_scatter_atoms: unknown property name");
+    return;
+  }
 
   // copy = Natom length vector of per-atom values
   // use atom ID to insert each atom's values into copy

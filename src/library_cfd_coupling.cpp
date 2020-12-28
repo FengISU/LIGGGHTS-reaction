@@ -1,46 +1,31 @@
 /* ----------------------------------------------------------------------
-    This is the
+   LIGGGHTS - LAMMPS Improved for General Granular and Granular Heat
+   Transfer Simulations
 
-    ██╗     ██╗ ██████╗  ██████╗  ██████╗ ██╗  ██╗████████╗███████╗
-    ██║     ██║██╔════╝ ██╔════╝ ██╔════╝ ██║  ██║╚══██╔══╝██╔════╝
-    ██║     ██║██║  ███╗██║  ███╗██║  ███╗███████║   ██║   ███████╗
-    ██║     ██║██║   ██║██║   ██║██║   ██║██╔══██║   ██║   ╚════██║
-    ███████╗██║╚██████╔╝╚██████╔╝╚██████╔╝██║  ██║   ██║   ███████║
-    ╚══════╝╚═╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝®
+   LIGGGHTS is part of the CFDEMproject
+   www.liggghts.com | www.cfdem.com
 
-    DEM simulation engine, released by
-    DCS Computing Gmbh, Linz, Austria
-    http://www.dcs-computing.com, office@dcs-computing.com
+   Christoph Kloss, christoph.kloss@cfdem.com
+   Copyright 2009-2012 JKU Linz
+   Copyright 2012-     DCS Computing GmbH, Linz
 
-    LIGGGHTS® is part of CFDEM®project:
-    http://www.liggghts.com | http://www.cfdem.com
+   LIGGGHTS is based on LAMMPS
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
 
-    Core developer and main author:
-    Christoph Kloss, christoph.kloss@dcs-computing.com
+   This software is distributed under the GNU General Public License.
 
-    LIGGGHTS® is open-source, distributed under the terms of the GNU Public
-    License, version 2 or later. It is distributed in the hope that it will
-    be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
-    received a copy of the GNU General Public License along with LIGGGHTS®.
-    If not, see http://www.gnu.org/licenses . See also top-level README
-    and LICENSE files.
-
-    LIGGGHTS® and CFDEM® are registered trade marks of DCS Computing GmbH,
-    the producer of the LIGGGHTS® software and the CFDEM®coupling software
-    See http://www.cfdem.com/terms-trademark-policy for details.
-
--------------------------------------------------------------------------
-    Contributing author and copyright for this file:
-    (if not contributing author is listed, this file has been contributed
-    by the core developer)
-
-    Copyright 2012-     DCS Computing GmbH, Linz
-    Copyright 2009-2012 JKU Linz
+   See the README file in the top-level directory.
 ------------------------------------------------------------------------- */
 
-#include "mpi.h"
-#include "string.h"
+/* ----------------------------------------------------------------------
+   CFD-DEM Coupling Stuff
+------------------------------------------------------------------------- */
+
+#include <mpi.h>
+#include <string.h>
+#include <stdio.h>
 #include "library_cfd_coupling.h"
 #include "lammps.h"
 #include "input.h"
@@ -54,11 +39,14 @@
 #include "memory.h"
 #include "error.h"
 #include "comm.h"
+#include "variable.h"
 #include "cfd_datacoupling.h"
+#include "cfd_datacoupling_one2one.h"
 
 using namespace LAMMPS_NS;
 
 #define LMP_GROW_DELTA 11000
+/*NL*/ #define LMP_OF_DEBUG false
 
 /* ---------------------------------------------------------------------- */
 
@@ -109,6 +97,25 @@ double* liggghts_get_vclump_ms(void *ptr)
 
 /* ---------------------------------------------------------------------- */
 
+double liggghts_get_variable(void *ptr, const char *variablename)
+{
+    LAMMPS *lmp = (LAMMPS *) ptr;
+    int size = strlen(variablename);
+    char* vn = new char[size+1];
+    strcpy(vn,variablename); // Fengei Qi, making compatible with LIGGGHTs321version
+    int var = lmp->input->variable->find(vn); 
+    delete [] vn;
+    if (var < 0)
+    {
+      char error_message[128] = {0};
+      snprintf(error_message, 127,"Failed to find DEM variable '%s' requested by OF, aborting.\n",variablename);
+      lmp->error->all(FLERR,error_message);
+    }
+    return lmp->input->variable->compute_equal(var);
+}
+
+/* ---------------------------------------------------------------------- */
+
 void* locate_coupling_fix(void *ptr)
 {
     LAMMPS *lmp = (LAMMPS *) ptr;
@@ -124,7 +131,7 @@ void* locate_coupling_fix(void *ptr)
 
 /* ---------------------------------------------------------------------- */
 
-void data_liggghts_to_of(char *name,char *type,void *ptr,void *&data,char* datatype)
+void data_liggghts_to_of(const char *name, const char *type, void *ptr, void *&data, const char *datatype)
 {
     //LAMMPS *lmp = (LAMMPS *) ptr;
     FixCfdCoupling* fcfd = (FixCfdCoupling*)locate_coupling_fix(ptr);
@@ -133,7 +140,7 @@ void data_liggghts_to_of(char *name,char *type,void *ptr,void *&data,char* datat
 
 /* ---------------------------------------------------------------------- */
 
-void data_of_to_liggghts(char *name,char *type,void *ptr,void *data,char* datatype)
+void data_of_to_liggghts(const char *name,const char *type,void *ptr,void *data,const char* datatype)
 {
     //LAMMPS *lmp = (LAMMPS *) ptr;
     FixCfdCoupling* fcfd = (FixCfdCoupling*)locate_coupling_fix(ptr);
@@ -142,6 +149,7 @@ void data_of_to_liggghts(char *name,char *type,void *ptr,void *data,char* dataty
 
 /* ---------------------------------------------------------------------- */
 
+//NP update region model
 void update_rm(void *ptr)
 {
     LAMMPS *lmp = (LAMMPS *) ptr;
@@ -149,6 +157,7 @@ void update_rm(void *ptr)
     locate_coupling_fix(ptr);
     //CfdRegionmodel *rm = fcfd->rm;
 
+    //NP call region model
     //if(rm) rm->rm_update();
     lmp->error->all(FLERR,"Region model update not implemented aborting.");
 }
@@ -163,7 +172,7 @@ void allocate_external_int(int    **&data, int len2,int len1,int    initvalue,vo
 }
 /* ---------------------------------------------------------------------- */
 
-void allocate_external_int(int    **&data, int len2,char *keyword,int    initvalue,void *ptr)
+void allocate_external_int(int    **&data, int len2,const char *keyword,int    initvalue,void *ptr)
 {
     //LAMMPS *lmp = (LAMMPS *) ptr;
     FixCfdCoupling* fcfd = (FixCfdCoupling*)locate_coupling_fix(ptr);
@@ -181,7 +190,7 @@ void allocate_external_double(double **&data, int len2,int len1,double initvalue
 
 /* ---------------------------------------------------------------------- */
 
-void allocate_external_double(double **&data, int len2,char* keyword,double initvalue,void *ptr)
+void allocate_external_double(double **&data, int len2,const char* keyword,double initvalue,void *ptr)
 {
     //LAMMPS *lmp = (LAMMPS *) ptr;
     FixCfdCoupling* fcfd = (FixCfdCoupling*)locate_coupling_fix(ptr);
@@ -190,9 +199,47 @@ void allocate_external_double(double **&data, int len2,char* keyword,double init
 
 /* ---------------------------------------------------------------------- */
 
+//NP check if all requested quantities have been communicated
+//NP    since last call of this function
 void check_datatransfer(void *ptr)
 {
     //LAMMPS *lmp = (LAMMPS *) ptr;
     FixCfdCoupling* fcfd = (FixCfdCoupling*)locate_coupling_fix(ptr);
     fcfd->get_dc()->check_datatransfer();
 }
+
+/* ---------------------------------------------------------------------- */
+
+double** o2o_liggghts_get_boundingbox(void *ptr)
+{
+    LAMMPS *lmp = (LAMMPS *) ptr;
+    double** bbox = new double*[2];
+    bbox[0] = lmp->domain->sublo;
+    bbox[1] = lmp->domain->subhi;
+    return bbox;
+}
+
+/* ---------------------------------------------------------------------- */
+
+void o2o_data_of_to_liggghts
+(
+    const char *name,
+    const char *type,
+    void *ptr,
+    void *data,
+    const char* datatype,
+    const int* ids,
+    const int ncollected
+)
+{
+    FixCfdCoupling* fcfd = (FixCfdCoupling*)locate_coupling_fix(ptr);
+    CfdDatacouplingOne2One* dc = static_cast<CfdDatacouplingOne2One*>(fcfd->get_dc());
+
+    if(strcmp(datatype,"double") == 0)
+        dc->pull_mpi<double>(name, type, data, ids, ncollected);
+    else if(strcmp(datatype,"int") == 0)
+        dc->pull_mpi<int>(name, type, data, ids, ncollected);
+ //   else error->one(FLERR,"Illegal call to CfdDatacouplingOne2One::pull, valid datatypes are 'int' and double'");
+
+}
+

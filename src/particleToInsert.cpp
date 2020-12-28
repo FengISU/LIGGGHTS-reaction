@@ -96,18 +96,24 @@ int ParticleToInsert::insert()
     int nfix = modify->nfix;
     Fix **fix = modify->fix;
         //add by Fenglei Qi, 2016/8/15
+    FixPropertyAtomReaction* fix_conductivity_=NULL;
+    FixPropertyAtomReaction* fix_capacity_ = NULL;
     FixReactionParticle0D* fix_reaction = static_cast<FixReactionParticle0D*>(modify->find_fix_style("reaction", 0));
     char style[] = "ParitcleToInsert";
-    FixPropertyAtomReaction* fix_conductivity_ =
+    if (fix_reaction)
+    {
+    	fix_conductivity_ =
         static_cast<FixPropertyAtomReaction*>
         (
             modify->find_fix_property("thermalConductivity","property/atom/reaction","scalar",1,0,style)
         );
-    FixPropertyAtomReaction* fix_capacity_ =
+    	fix_capacity_ =
         static_cast<FixPropertyAtomReaction*>
         (
             modify->find_fix_property("thermalCapacity","property/atom/reaction","scalar",1,0,style)
         );
+    }
+
     for(int i = 0; i < nspheres; i++)
     {
         
