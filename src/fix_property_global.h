@@ -67,6 +67,7 @@ class FixPropertyGlobal : public Fix {
  friend class PairSph;
  friend class Properties;
  friend class FixTempFromFile;
+ friend class Modify;
 
  public:
   FixPropertyGlobal(class LAMMPS *, int, char **);
@@ -99,7 +100,7 @@ class FixPropertyGlobal : public Fix {
 
   void write();
 
- private:
+ //private:
 
   char *variablename;        // name of the variable (used for identification by other fixes)
   int data_style;            // 0 if a scalar is registered, 1 if vector, 2 if 2d array (matrix)
