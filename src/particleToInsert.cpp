@@ -54,7 +54,7 @@
 #include "modify.h"
 
 #include "fix_reaction_particle0D.h"
-
+#include "fix_heat_gran.h"
 using namespace LAMMPS_NS;
 
 ParticleToInsert::ParticleToInsert(LAMMPS* lmp,int ns) : Pointers(lmp)
