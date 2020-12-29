@@ -74,8 +74,8 @@ using namespace FixConst;
 
 FixPropertyAtomReaction::FixPropertyAtomReaction(LAMMPS *lmp, int narg, char **arg, bool parse) :
   FixPropertyAtom(lmp,narg,arg,false),
-  propertyname(0),
-  property(0),
+  //propertyname(0),
+  //property(0),
   restart_flag(false),
   fix_temp(NULL),
   fix_composition(NULL),
@@ -559,10 +559,10 @@ FixPropertyAtomReaction::~FixPropertyAtomReaction()
   //atom->delete_callback(id,0);
   //if (restart_peratom) atom->delete_callback(id,1);
 
-  // delete locally stored arrays
-  delete [] variablename;
-  delete [] defaultvalues;
-  if(propertyname) delete [] propertyname;
+ // delete locally stored arrays
+  //delete [] variablename;
+  //delete [] defaultvalues;
+  //if(propertyname) delete [] propertyname;
 
   //if (data_style) memory->destroy(array_atom);
   //else memory->destroy(vector_atom);

@@ -112,12 +112,13 @@ class FixPropertyAtomReaction : public FixPropertyAtom {
   int nevery_; //update properties every this step
   bool restart_flag;
  private:
-  char *variablename;   // name of the variable (used for identification by other fixes)
-  int data_style;       // 0 if a scalar is registered, 1 if vector
-  int commGhost;        // 1 if communicated to ghost particles (via pack_comm/unpack_comm), 0 if not
-  int commGhostRev;     // 1 if rev communicated from ghost particles (via pack_comm_rev/unpack_comm_rev), 0 if not
-  int nvalues;
-  double *defaultvalues; // default values at particle creation
+  //the following commented out variables are not priva type in fix_property_atom in this version.
+  //char *variablename;   // name of the variable (used for identification by other fixes)
+  //int data_style;       // 0 if a scalar is registered, 1 if vector
+  //int commGhost;        // 1 if communicated to ghost particles (via pack_comm/unpack_comm), 0 if not
+  //int commGhostRev;     // 1 if rev communicated from ghost particles (via pack_comm_rev/unpack_comm_rev), 0 if not
+  //int nvalues;
+  //double *defaultvalues; // default values at particle creation
 
   int ntypes;
   int numComp;
@@ -136,8 +137,8 @@ class FixPropertyAtomReaction : public FixPropertyAtom {
   char infile[256];         // infile
 
   // in case of initialization from property - name of property
-  char *propertyname;
-  double *property;
+  //char *propertyname;
+  //double *property;
 }; //end class
 
 #include "fix_property_atom_reaction_i.h"
