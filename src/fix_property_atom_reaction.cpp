@@ -662,7 +662,16 @@ void FixPropertyAtomReaction::initial_integrate(int vflag)
   else if(update->ntimestep % nevery_) 
     return;
 
-  if (!infileflag) return;
+  if (!infileflag) {
+      int nlocal = atom->nlocal;
+      int *type = atom->type;
+      for (int i = 0; i < nlocal; i++)
+      {
+        vector_atom[i] = defaultvalues[type[i]-1];
+      }
+      this->do_forward_comm();
+      return;
+  }
 
   if(fix_temp)
     Temp = fix_temp->vector_atom;
