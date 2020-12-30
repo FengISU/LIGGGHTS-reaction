@@ -64,7 +64,7 @@ JPG_INC =
 JPG_PATH = 	
 JPG_LIB =	
 
-BOOST_INC = -I/home/PFM/boost
+BOOST_INC = -I/home/fenglei/PFM/boost
 # ---------------------------------------------------------------------
 # build rules and dependencies
 # no need to edit this section

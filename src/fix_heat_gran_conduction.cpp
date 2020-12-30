@@ -371,7 +371,7 @@ void FixHeatGranCond::post_force_eval(int vflag,int cpl_flag)
       
       //debugging 
       #if CONFIG_ENABLE_DEBUG_LOG
-          if (update->ntimestep %20000 ==0)
+          if (update->ntimestep %10000 ==0)
           {
             FixPropertyAtomReaction* fix_capacity =  static_cast<FixPropertyAtomReaction*>(modify->find_fix_property("thermalCapacity","property/atom/reaction","scalar",1,0,style));
             char message[500];           
@@ -521,6 +521,10 @@ void FixHeatGranCond::post_force_eval(int vflag,int cpl_flag)
         {
             printf("Error with flux caculation \n");
             printf("Particle in %d node and with id %d \n", comm->me, atom->tag[i]);
+            char message[500];
+            sprintf(message,"Parameters in pfp heat transfer: condi: %.4e, condj: %.4e, condg: %.4e,lowB:%.4e, upB: %.4e, radeff: %.4e\n",
+                    tcoi,tcoj,fluid_conductivity_,contacting_pfp.lowBound,contacting_pfp.upBound,contacting_pfp.rad_eff);
+            error->message(FLERR,message,1);
             printf("pp: %.4e, pfp1: %.4e, pfp2: %.4e, radiation: %.4e\n",heatFluxDistribution[i][0],heatFluxDistribution[i][1],heatFluxDistribution[i][2],heatFluxDistribution[i][3]);
             printf("particle %d, x %.4e, y %.4e,z %.4e \n", atom->tag[i],x[i][0],x[i][1],x[i][1]);
             printf("particle %d, x %.4e, y %.4e,z %.4e \n", atom->tag[j],x[j][0],x[j][1],x[j][1]);

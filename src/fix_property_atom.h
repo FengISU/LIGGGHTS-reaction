@@ -81,6 +81,9 @@ class FixPropertyAtom : public Fix {
 
   void set_all(double value);
 
+  virtual void set_array(int, int, double);
+  virtual void set_vector(int, double);
+
   void write_restart(FILE *);
   virtual void restart(char *);
 
@@ -95,13 +98,16 @@ class FixPropertyAtom : public Fix {
   int pack_reverse_comm(int, int, double *);
   void unpack_reverse_comm(int, int *, double *);
   virtual double compute_vector(int n);
+  int num_defaultvalues();
+  double defaultvalue(int);
+
 
   virtual void mark_tracers(int ilo, int ihi) { UNUSED(ilo); UNUSED(ihi); }
 
  protected:
   void parse_args(int narg, char **arg);
 
- private:
+ //private:
   char *variablename;   // name of the variable (used for identification by other fixes)
   int data_style;       // 0 if a scalar is registered, 1 if vector
   int commGhost;        // 1 if communicated to ghost particles (via pack_comm/unpack_comm), 0 if not

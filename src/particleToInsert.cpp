@@ -54,7 +54,7 @@
 #include "modify.h"
 
 #include "fix_reaction_particle0D.h"
-
+#include "fix_heat_gran.h"
 using namespace LAMMPS_NS;
 
 ParticleToInsert::ParticleToInsert(LAMMPS* lmp,int ns) : Pointers(lmp)
@@ -99,8 +99,9 @@ int ParticleToInsert::insert()
     FixPropertyAtomReaction* fix_conductivity_=NULL;
     FixPropertyAtomReaction* fix_capacity_ = NULL;
     FixReactionParticle0D* fix_reaction = static_cast<FixReactionParticle0D*>(modify->find_fix_style("reaction", 0));
+    FixHeatGran* fix_heat = static_cast<FixHeatGran*>(modify->find_fix_style("heat/gran", 0));
     char style[] = "ParitcleToInsert";
-    if (fix_reaction)
+    if (fix_reaction || fix_heat)
     {
     	fix_conductivity_ =
         static_cast<FixPropertyAtomReaction*>
